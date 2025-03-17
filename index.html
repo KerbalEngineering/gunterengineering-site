@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payton Gunter - Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <h1>Payton Gunter</h1>
-        <p>Amp Alchemist | Innovator | Space Advocate</p>
+        <p>Electronics Maker | Innovator | Space Advocate</p>
     </header>
     <nav>
         <ul>
@@ -46,7 +46,23 @@
         </div>
     </section>
     <footer>
-        <p>Contact: <a href="mailto:payton@example.com">payton@example.com</a> | <a href="https://github.com/paytongunter">GitHub</a></p>
+        <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
     </footer>
+    <script>
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                alert('Copied to clipboard: ' + text);
+            } catch (err) {
+                console.error('Copy failed: ', err);
+                alert('Copy failed—please select and copy manually.');
+            }
+            document.body.removeChild(tempInput);
+        }
+    </script>
 </body>
 </html>

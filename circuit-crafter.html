@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payton Gunter - Circuit Crafter</title>
+    <link rel="stylesheet" href="styles.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; }
+        #gameContainer {
+            position: relative;
+            display: flex;
+            margin: 20px auto;
+            width: 800px;
+        }
+        #gameCanvas {
+            border: 2px solid #d4af37;
+            background: #2e7d32;
+            user-select: none;
+        }
+        #shelf {
+            width: 150px;
+            height: 640px;
+            background: #333;
+            border: 2px solid #d4af37;
+            padding: 10px;
+            color: #e0e0e0;
+            text-align: center;
+            margin-left: 10px;
+            user-select: none;
+        }
+        .shelf-item {
+            width: 100px;
+            height: 40px;
+            margin: 10px auto;
+            cursor: grab;
+            background: #555;
+            border: 1px solid #778da9;
+            text-align: center;
+            line-height: 40px;
+            user-select: none;
+        }
+        #titleScreen, #levelSelect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #e0e0e0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #levelSelect { display: none; }
+        #titleScreen h2, #levelSelect h2 {
+            user-select: none;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #d7bdf2;
+            border: none;
+            color: #1a1a1a;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #f0e4ff; }
+        .level-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Payton Gunter</h1>
+        <p>Electronics Maker | Innovator | Space Advocate</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/current-projects.html">Current Projects</a></li>
+            <li><a href="/past-projects.html">Past Projects</a></li>
+            <li><a href="/off-topic.html">Off Topic</a></li>
+        </ul>
+    </nav>
+    <section id="circuit-crafter">
+        <div id="gameContainer">
+            <canvas id="gameCanvas" width="640" height="640"></canvas>
+            <div id="shelf"></div>
+            <div id="titleScreen">
+                <h2>Circuit Crafter</h2>
+                <button id="playButton">Play</button>
+            </div>
+            <div id="levelSelect">
+                <h2>Select Level</h2>
+                <div id="levelButtons"></div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
+    </footer>
+    <script>
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                alert('Copied to clipboard: ' + text);
+            } catch (err) {
+                console.error('Copy failed: ', err);
+                alert('Copy failed—please select and copy manually.');
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 8;
+        const cellSize = canvas.width / gridSize;
+        let grid = Array(gridSize).fill().map(() => Array(gridSize).fill(null));
+        let totalResistance = 0;
+        let dragging = null;
+        let currentLevel = 0;
+        let unlockedLevels = 1;
+        let shelfStock = {};
+
+        const levels = [
+            { start: { vcc: [0,0], gnd: [7,7], led: [7,0] }, shelf: { wire: 14, resistor: 0, capacitor: 0 } },
+            { start: { vcc: [0,0], gnd: [7,7], led: [7,0], wire: [[0,1], [0,2]] }, shelf: { wire: 12, resistor: 1, capacitor: 0 } },
+            { start: { vcc: [0,0], gnd: [7,7], led: [4,4], wire: [[0,1], [1,1]] }, shelf: { wire: 10, resistor: 1, capacitor: 1 } }
+        ];
+
+        function resetGrid() {
+            grid = Array(gridSize).fill().map(() => Array(gridSize).fill(null));
+            totalResistance = 0;
+            const level = levels[currentLevel];
+            for (let key in level.start) {
+                if (key === 'wire') {
+                    level.start[key].forEach(([x, y]) => grid[y][x] = { type: 'wire', x, y, fixed: true });
+                } else {
+                    const [x, y] = level.start[key];
+                    grid[y][x] = { type: key, x, y, fixed: true };
+                }
+            }
+            shelfStock = { ...level.shelf };
+            updateShelf();
+            drawGrid();
+        }
+
+        function updateShelf() {
+            const shelf = document.getElementById('shelf');
+            shelf.innerHTML = '<h3>Shelf</h3>';
+            for (let type in shelfStock) {
+                if (shelfStock[type] > 0) {
+                    const item = document.createElement('div');
+                    item.className = 'shelf-item';
+                    item.draggable = true;
+                    item.dataset.type = type;
+                    if (type === 'resistor') item.dataset.value = '50';
+                    item.textContent = type.charAt(0).toUpperCase() + ' x' + shelfStock[type];
+                    shelf.appendChild(item);
+                    item.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('type', item.dataset.type);
+                        if (item.dataset.value) e.dataTransfer.setData('value', item.dataset.value);
+                    });
+                }
+            }
+        }
+
+        function getWireShape(x, y) {
+            const hasLeft = x > 0 && grid[y][x - 1] && grid[y][x - 1].type !== 'gnd';
+            const hasRight = x < gridSize - 1 && grid[y][x + 1] && grid[y][x + 1].type !== 'vcc';
+            const hasUp = y > 0 && grid[y - 1][x] && grid[y - 1][x].type !== 'gnd';
+            const hasDown = y < gridSize - 1 && grid[y + 1][x] && grid[y + 1][x].type !== 'vcc';
+
+            const neighborCount = [hasLeft, hasRight, hasUp, hasDown].filter(Boolean).length;
+
+            if (neighborCount >= 3) {
+                if (hasLeft && hasRight && hasUp && hasDown) return 'cross';
+                if (hasLeft && hasRight && hasUp) return 't-up';
+                if (hasLeft && hasRight && hasDown) return 't-down';
+                if (hasLeft && hasUp && hasDown) return 't-left';
+                if (hasRight && hasUp && hasDown) return 't-right';
+            } else if (neighborCount === 2) {
+                if (hasLeft && hasRight) return 'horizontal';
+                if (hasUp && hasDown) return 'vertical';
+                if (hasLeft && hasUp) return 'corner-ul';
+                if (hasLeft && hasDown) return 'corner-dl';
+                if (hasRight && hasUp) return 'corner-ur';
+                if (hasRight && hasDown) return 'corner-dr';
+            } else if (neighborCount === 1) {
+                if (hasLeft || hasRight) return 'horizontal';
+                if (hasUp || hasDown) return 'vertical';
+            }
+            return 'horizontal';
+        }
+
+        function drawWire(x, y, shape) {
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            const cx = x * cellSize + cellSize / 2;
+            const cy = y * cellSize + cellSize / 2;
+
+            if (shape === 'horizontal') {
+                ctx.moveTo(x * cellSize, cy);
+                ctx.lineTo(x * cellSize + cellSize, cy);
+            } else if (shape === 'vertical') {
+                ctx.moveTo(cx, y * cellSize);
+                ctx.lineTo(cx, y * cellSize + cellSize);
+            } else if (shape === 'cross') {
+                ctx.moveTo(x * cellSize, cy);
+                ctx.lineTo(x * cellSize + cellSize, cy);
+                ctx.moveTo(cx, y * cellSize);
+                ctx.lineTo(cx, y * cellSize + cellSize);
+            } else if (shape === 't-up') {
+                ctx.moveTo(x * cellSize, cy);
+                ctx.lineTo(x * cellSize + cellSize, cy);
+                ctx.moveTo(cx, y * cellSize);
+                ctx.lineTo(cx, cy);
+            } else if (shape === 't-down') {
+                ctx.moveTo(x * cellSize, cy);
+                ctx.lineTo(x * cellSize + cellSize, cy);
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx, y * cellSize + cellSize);
+            } else if (shape === 't-left') {
+                ctx.moveTo(x * cellSize, cy);
+                ctx.lineTo(cx, cy);
+                ctx.moveTo(cx, y * cellSize);
+                ctx.lineTo(cx, y * cellSize + cellSize);
+            } else if (shape === 't-right') {
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x * cellSize + cellSize, cy);
+                ctx.moveTo(cx, y * cellSize);
+                ctx.lineTo(cx, y * cellSize + cellSize);
+            } else if (shape === 'corner-ul') {
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx, y * cellSize);
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x * cellSize, cy);
+            } else if (shape === 'corner-dl') {
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx, y * cellSize + cellSize);
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x * cellSize, cy);
+            } else if (shape === 'corner-ur') {
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx, y * cellSize);
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x * cellSize + cellSize, cy);
+            } else if (shape === 'corner-dr') {
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx, y * cellSize + cellSize);
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x * cellSize + cellSize, cy);
+            }
+            ctx.stroke();
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    ctx.strokeStyle = '#d4af37';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                    if (grid[y][x] && (!dragging || dragging.x !== x || dragging.y !== y)) {
+                        if (grid[y][x].type === 'vcc') {
+                            ctx.fillStyle = '#f0e4ff';
+                            ctx.fillRect(x * cellSize + 10, y * cellSize + 10, cellSize - 20, cellSize - 20);
+                            ctx.fillStyle = '#000';
+                            ctx.font = '16px Roboto';
+                            ctx.fillText('VCC', x * cellSize + 20, y * cellSize + cellSize / 2);
+                        } else if (grid[y][x].type === 'gnd') {
+                            ctx.fillStyle = '#666';
+                            ctx.fillRect(x * cellSize + 10, y * cellSize + 10, cellSize - 20, cellSize - 20);
+                            ctx.fillStyle = '#e0e0e0';
+                            ctx.font = '16px Roboto';
+                            ctx.fillText('GND', x * cellSize + 20, y * cellSize + cellSize / 2);
+                        } else if (grid[y][x].type === 'led') {
+                            ctx.fillStyle = totalResistance <= 100 && isCircuitComplete() ? '#d7bdf2' : '#666';
+                            ctx.beginPath();
+                            ctx.arc(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+                            ctx.fill();
+                        } else if (grid[y][x].type === 'wire') {
+                            drawWire(x, y, getWireShape(x, y));
+                        } else if (grid[y][x].type === 'resistor') {
+                            ctx.fillStyle = '#778da9';
+                            ctx.fillRect(x * cellSize + 20, y * cellSize + 10, cellSize - 40, cellSize - 20);
+                            ctx.fillStyle = '#e0e0e0';
+                            ctx.font = '16px Roboto';
+                            ctx.fillText(grid[y][x].value, x * cellSize + cellSize / 2 - 10, y * cellSize + cellSize / 2 + 5);
+                        } else if (grid[y][x].type === 'capacitor') {
+                            ctx.strokeStyle = '#d7bdf2';
+                            ctx.lineWidth = 4;
+                            ctx.beginPath();
+                            ctx.moveTo(x * cellSize + 20, y * cellSize + 10);
+                            ctx.lineTo(x * cellSize + 20, y * cellSize + cellSize - 10);
+                            ctx.moveTo(x * cellSize + cellSize - 20, y * cellSize + 10);
+                            ctx.lineTo(x * cellSize + cellSize - 20, y * cellSize + cellSize - 10);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            if (dragging) {
+                const x = Math.floor(dragging.tempX / cellSize);
+                const y = Math.floor(dragging.tempY / cellSize);
+                if (dragging.type === 'wire') {
+                    drawWire(x, y, getWireShape(dragging.x, dragging.y));
+                } else if (dragging.type === 'resistor') {
+                    ctx.fillStyle = '#778da9';
+                    ctx.fillRect(x * cellSize + 20, y * cellSize + 10, cellSize - 40, cellSize - 20);
+                    ctx.fillStyle = '#e0e0e0';
+                    ctx.font = '16px Roboto';
+                    ctx.fillText(dragging.value, x * cellSize + cellSize / 2 - 10, y * cellSize + cellSize / 2 + 5);
+                } else if (dragging.type === 'capacitor') {
+                    ctx.strokeStyle = '#d7bdf2';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(x * cellSize + 20, y * cellSize + 10);
+                    ctx.lineTo(x * cellSize + 20, y * cellSize + cellSize - 10);
+                    ctx.moveTo(x * cellSize + cellSize - 20, y * cellSize + 10);
+                    ctx.lineTo(x * cellSize + cellSize - 20, y * cellSize + cellSize - 10);
+                    ctx.stroke();
+                }
+            }
+            ctx.fillStyle = '#e0e0e0';
+            ctx.font = '20px Roboto';
+            ctx.fillText('Level ' + (currentLevel + 1) + ' | Resistance: ' + totalResistance + ' ohms', 10, 30);
+        }
+
+        function refreshWires() {
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    if (grid[y][x] && grid[y][x].type === 'wire') {
+                        drawWire(x, y, getWireShape(x, y));
+                    }
+                }
+            }
+        }
+
+        function isCircuitComplete() {
+            let visited = new Set();
+            let foundLed = false;
+
+            function dfs(x, y) {
+                if (x < 0 || x >= gridSize || y < 0 || y >= gridSize || visited.has(`${x},${y}`) || !grid[y][x]) return false;
+                visited.add(`${x},${y}`);
+
+                if (grid[y][x].type === 'led') {
+                    foundLed = true;
+                } else if (grid[y][x].type === 'gnd' && foundLed) {
+                    return true;
+                }
+
+                return dfs(x + 1, y) || dfs(x - 1, y) || dfs(x, y + 1) || dfs(x, y - 1);
+            }
+
+            return dfs(0, 0);
+        }
+
+        function checkWin() {
+            drawGrid();
+            refreshWires();
+            if (isCircuitComplete() && totalResistance <= 100) {
+                alert('Level ' + (currentLevel + 1) + ' Complete!');
+                if (currentLevel + 1 >= unlockedLevels) {
+                    unlockedLevels = currentLevel + 2;
+                }
+                document.getElementById('levelSelect').style.display = 'flex';
+                updateLevelSelect();
+            } else if (totalResistance > 100) {
+                alert('Too much resistance! Max 100 ohms.');
+            }
+        }
+
+        canvas.addEventListener('dragover', (e) => e.preventDefault());
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const x = Math.floor(e.offsetX / cellSize);
+            const y = Math.floor(e.offsetY / cellSize);
+            if (!grid[y][x]) {
+                if (dragging) {
+                    if (dragging.type === 'resistor') totalResistance -= dragging.value || 0;
+                    grid[dragging.y][dragging.x] = null;
+                    grid[y][x] = { type: dragging.type, x, y };
+                    if (dragging.type === 'resistor') {
+                        grid[y][x].value = dragging.value;
+                        totalResistance += dragging.value || 0;
+                    }
+                    dragging = null;
+                } else {
+                    const type = e.dataTransfer.getData('type');
+                    const value = e.dataTransfer.getData('value');
+                    if (shelfStock[type] > 0) {
+                        grid[y][x] = { type, x, y };
+                        if (type === 'resistor') {
+                            grid[y][x].value = parseInt(value);
+                            totalResistance += grid[y][x].value;
+                        }
+                        shelfStock[type]--;
+                        updateShelf();
+                    }
+                }
+                checkWin();
+            }
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const x = Math.floor(e.offsetX / cellSize);
+            const y = Math.floor(e.offsetY / cellSize);
+            if (grid[y][x] && !grid[y][x].fixed) {
+                dragging = grid[y][x];
+                dragging.tempX = e.offsetX;
+                dragging.tempY = e.offsetY;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (dragging) {
+                dragging.tempX = e.offsetX;
+                dragging.tempY = e.offsetY;
+                drawGrid();
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (dragging) {
+                const x = Math.floor(e.offsetX / cellSize);
+                const y = Math.floor(e.offsetY / cellSize);
+                if (!grid[y][x] && (x !== dragging.x || y !== dragging.y)) {
+                    if (dragging.type === 'resistor') totalResistance -= dragging.value || 0;
+                    grid[dragging.y][dragging.x] = null;
+                    grid[y][x] = { type: dragging.type, x, y };
+                    if (dragging.type === 'resistor') {
+                        grid[y][x].value = dragging.value;
+                        totalResistance += dragging.value || 0;
+                    }
+                }
+                dragging = null;
+                checkWin();
+            }
+        });
+
+        document.getElementById('playButton').addEventListener('click', () => {
+            document.getElementById('titleScreen').style.display = 'none';
+            document.getElementById('levelSelect').style.display = 'flex';
+            updateLevelSelect();
+        });
+
+        function updateLevelSelect() {
+            const levelButtons = document.getElementById('levelButtons');
+            levelButtons.innerHTML = '';
+            levels.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.textContent = 'Level ' + (i + 1);
+                btn.className = 'level-button';
+                btn.disabled = i >= unlockedLevels;
+                btn.addEventListener('click', () => {
+                    currentLevel = i;
+                    document.getElementById('levelSelect').style.display = 'none';
+                    resetGrid();
+                });
+                levelButtons.appendChild(btn);
+            });
+        }
+
+        drawGrid();
+    </script>
+</body>
+</html>

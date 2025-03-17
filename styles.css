@@ -2,6 +2,7 @@ body {
     font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
     padding: 0;
+    padding-bottom: 60px;
     line-height: 1.6;
     background-color: #1a1a1a;
     color: #e0e0e0;
@@ -45,17 +46,17 @@ nav a {
 nav a:hover {
     color: #e8dafc;
 }
-#about, #summary, #current-projects, #contact {
+#about, #summary, #current-projects, #contact, #past-projects, #off-topic, #test-game {
     padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
 }
-#about, #current-projects, #contact {
+#about, #current-projects, #contact, #past-projects, #off-topic, #test-game {
     background: #2a2a2a;
     border-radius: 8px;
     margin-top: 2rem;
 }
-#about h2, #summary h2, #current-projects h2, #contact h2 {
+#about h2, #summary h2, #current-projects h2, #contact h2, #past-projects h2, #off-topic h2, #test-game h2 {
     text-align: center;
     color: #d7bdf2;
     font-size: 2rem;
@@ -99,6 +100,14 @@ nav a:hover {
     color: #d7bdf2;
     margin-top: 0;
 }
+.project-detail a {
+    color: #f0e4ff !important;
+    text-decoration: none;
+    font-weight: bold;
+}
+.project-detail a:hover {
+    color: #ffffff !important;
+}
 .project-detail table {
     width: 100%;
     border-collapse: collapse;
@@ -113,7 +122,7 @@ nav a:hover {
     background: #2a2a2a;
     color: #d7bdf2;
 }
-#contact p {
+#contact p, #past-projects p, #off-topic p, #test-game p {
     text-align: center;
     max-width: 600px;
     margin: 0 auto 1.5rem;
@@ -132,6 +141,16 @@ nav a:hover {
     font-weight: bold;
 }
 .contact-info a:hover {
+    color: #f0e4ff;
+}
+.copyable {
+    color: #e8dafc;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s;
+}
+.copyable:hover {
     color: #f0e4ff;
 }
 footer {
