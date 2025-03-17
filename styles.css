@@ -176,3 +176,11 @@ footer a:hover {
     nav ul { flex-direction: column; gap: 1rem; }
     .project-grid { grid-template-columns: 1fr; }
 }
+#game-container {
+    width: 800px;
+    height: 600px;
+    margin: 1.5rem auto;
+    background: #000;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
