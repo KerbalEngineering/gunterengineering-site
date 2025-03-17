@@ -61,42 +61,42 @@
             const moduleGeometry = new THREE.CylinderGeometry(1.3, 1.3, 4, 32);
             const moduleMaterial = new THREE.MeshBasicMaterial({ color: 0x666666 });
             const module = new THREE.Mesh(moduleGeometry, moduleMaterial);
-            module.position.y = 0; // Center at y = 0, ends at -2 and 2
+            module.position.y = 0; // Ends at -2 and 2
             station.add(module);
             console.log('Module: radius 1.3, length 4, y = 0, ends at y = -2 and 2, color: gray');
 
             // Conical ends - Light Green
-            const coneGeometry = new THREE.CylinderGeometry(0.65, 1.3, 0.3, 32); // Narrow top, wide bottom
+            const coneGeometry = new THREE.CylinderGeometry(1.3, 0.65, 0.3, 32); // Wide top, narrow bottom
             const coneMaterial = new THREE.MeshBasicMaterial({ color: 0x90EE90 });
             // Bottom cone
             const coneBottom = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneBottom.position.y = -2.15; // Wide at -2, narrow at -1.85
+            coneBottom.position.y = -1.85; // Wide at -2, narrow at -2.3
+            coneBottom.rotation.x = Math.PI; // Flip: wide at -2, narrow at -1.7
             station.add(coneBottom);
-            console.log('Cone Bottom: top 0.65, base 1.3, y = -2.15, wide at -2, narrow at -1.85, color: light green');
+            console.log('Cone Bottom: top 1.3, base 0.65, y = -1.85, wide at -2, narrow at -1.7, color: light green');
             // Top cone
             const coneTop = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneTop.position.y = 1.85; // Wide at 2, narrow at 2.3
-            coneTop.rotation.x = Math.PI; // Flip: wide at 2, narrow at 1.7
+            coneTop.position.y = 1.85; // Wide at 2, narrow at 1.7
             station.add(coneTop);
-            console.log('Cone Top: top 0.65, base 1.3, y = 1.85, wide at 2, narrow at 1.7, color: light green');
+            console.log('Cone Top: top 1.3, base 0.65, y = 1.85, wide at 2, narrow at 1.7, color: light green');
 
             // Docking ports - Light Blue
             const portGeometry = new THREE.CylinderGeometry(0.65, 0.65, 0.15, 32);
             const portMaterial = new THREE.MeshBasicMaterial({ color: 0x87CEEB });
             // Bottom port
             const portBottom = new THREE.Mesh(portGeometry, portMaterial);
-            portBottom.position.y = -1.925; // -1.85 - 0.075 (center, 0.05 protrudes to -1.8)
+            portBottom.position.y = -1.775; // -1.7 + 0.075 - 0.15 (protrudes to -1.65)
             station.add(portBottom);
-            console.log('Port Bottom: radius 0.65, y = -1.925, protrudes to -1.8, color: light blue');
+            console.log('Port Bottom: radius 0.65, y = -1.775, protrudes to -1.65, color: light blue');
             // Top port
             const portTop = new THREE.Mesh(portGeometry, portMaterial);
-            portTop.position.y = 1.925; // 1.7 + 0.225 (center, 0.05 protrudes to 1.95)
+            portTop.position.y = 1.775; // 1.7 + 0.075 (protrudes to 1.85)
             station.add(portTop);
-            console.log('Port Top: radius 0.65, y = 1.925, protrudes to 1.95, color: light blue');
+            console.log('Port Top: radius 0.65, y = 1.775, protrudes to 1.85, color: light blue');
 
             scene.add(station);
 
-            camera.position.z = 10; // Adjusted for smaller model
+            camera.position.z = 10;
 
             function animate() {
                 requestAnimationFrame(animate);
