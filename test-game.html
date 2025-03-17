@@ -57,88 +57,51 @@
             // Station group
             const station = new THREE.Group();
 
-            // Module 1 (standard, left) - Gray
-            const module1Geometry = new THREE.CylinderGeometry(1.3, 1.3, 4, 32);
+            // Single Module - Gray
+            const moduleGeometry = new THREE.CylinderGeometry(1.3, 1.3, 4, 32);
             const moduleMaterial = new THREE.MeshBasicMaterial({ color: 0x666666 });
-            const module1 = new THREE.Mesh(module1Geometry, moduleMaterial);
-            module1.position.x = -2; // Center at x = -2, ends at -4 and 0
-            module1.rotation.z = Math.PI / 2; // Rotate to lie along X-axis
-            station.add(module1);
-            console.log('Module 1: radius 1.3, length 4, x = -2, ends at x = -4 and 0, color: gray');
-
-            // Module 2 (habitat, right) - Gray
-            const module2Geometry = new THREE.CylinderGeometry(1.3, 1.3, 5.6, 32);
-            const module2 = new THREE.Mesh(module2Geometry, moduleMaterial);
-            module2.position.x = 2.8; // Center at x = 2.8, ends at 0 and 5.6
-            module2.rotation.z = Math.PI / 2; // Rotate to lie along X-axis
-            station.add(module2);
-            console.log('Module 2: radius 1.3, length 5.6, x = 2.8, ends at x = 0 and 5.6, color: gray');
+            const module = new THREE.Mesh(moduleGeometry, moduleMaterial);
+            module.position.y = 0; // Ends at -2 and 2
+            station.add(module);
+            console.log('Module: radius 1.3, length 4, y = 0, ends at y = -2 and 2, color: gray');
 
             // Conical ends - Light Green
             const coneGeometry = new THREE.CylinderGeometry(0.65, 1.3, 0.5, 32); // Narrow top, wide bottom
             const coneMaterial = new THREE.MeshBasicMaterial({ color: 0x90EE90 });
-            // Left end (Module 1)
-            const coneLeft = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneLeft.position.x = -4.25; // Wide at -4, narrow at -4.5
-            coneLeft.rotation.z = Math.PI / 2; // Align with X-axis
-            coneLeft.rotation.x = Math.PI; // Flip to match module
-            station.add(coneLeft);
-            console.log('Cone Left: top 0.65, base 1.3, x = -4.25, narrow at -4.5, wide at -4, color: light green');
-            // Middle (between modules)
-            const coneMiddleLeft = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneMiddleLeft.position.x = -0.25; // Wide at 0, narrow at -0.5
-            coneMiddleLeft.rotation.z = Math.PI / 2;
-            coneMiddleLeft.rotation.x = Math.PI; // Flip
-            station.add(coneMiddleLeft);
-            console.log('Cone Middle Left: top 0.65, base 1.3, x = -0.25, narrow at -0.5, wide at 0, color: light green');
-            const coneMiddleRight = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneMiddleRight.position.x = 0.25; // Wide at 0, narrow at 0.5
-            coneMiddleRight.rotation.z = Math.PI / 2;
-            station.add(coneMiddleRight);
-            console.log('Cone Middle Right: top 0.65, base 1.3, x = 0.25, narrow at 0.5, wide at 0, color: light green');
-            // Right end (Module 2)
-            const coneRight = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneRight.position.x = 5.85; // Wide at 5.6, narrow at 6.1
-            coneRight.rotation.z = Math.PI / 2;
-            station.add(coneRight);
-            console.log('Cone Right: top 0.65, base 1.3, x = 5.85, narrow at 6.1, wide at 5.6, color: light green');
+            // Bottom cone
+            const coneBottom = new THREE.Mesh(coneGeometry, coneMaterial);
+            coneBottom.position.y = -2.25; // Wide at -2, narrow at -2.5
+            coneBottom.rotation.x = Math.PI; // Flip to align wide end with module
+            station.add(coneBottom);
+            console.log('Cone Bottom: top 0.65, base 1.3, y = -2.25, narrow at -2.5, wide at -2, color: light green');
+            // Top cone
+            const coneTop = new THREE.Mesh(coneGeometry, coneMaterial);
+            coneTop.position.y = 2.25; // Wide at 2, narrow at 2.5
+            station.add(coneTop);
+            console.log('Cone Top: top 0.65, base 1.3, y = 2.25, narrow at 2.5, wide at 2, color: light green');
 
             // Docking ports - Light Blue
             const portGeometry = new THREE.CylinderGeometry(0.65, 0.65, 0.15, 32);
             const portMaterial = new THREE.MeshBasicMaterial({ color: 0x87CEEB });
-            // Left port
-            const portLeft = new THREE.Mesh(portGeometry, portMaterial);
-            portLeft.position.x = -4.5; // Center at -4.5, spans -4.575 to -4.425
-            portLeft.rotation.z = Math.PI / 2;
-            station.add(portLeft);
-            console.log('Port Left: radius 0.65, x = -4.5, spans -4.575 to -4.425, color: light blue');
-            // Middle ports
-            const portMiddleLeft = new THREE.Mesh(portGeometry, portMaterial);
-            portMiddleLeft.position.x = -0.5; // Center at -0.5, spans -0.575 to -0.425
-            portMiddleLeft.rotation.z = Math.PI / 2;
-            station.add(portMiddleLeft);
-            console.log('Port Middle Left: radius 0.65, x = -0.5, spans -0.575 to -0.425, color: light blue');
-            const portMiddleRight = new THREE.Mesh(portGeometry, portMaterial);
-            portMiddleRight.position.x = 0.5; // Center at 0.5, spans 0.425 to 0.575
-            portMiddleRight.rotation.z = Math.PI / 2;
-            station.add(portMiddleRight);
-            console.log('Port Middle Right: radius 0.65, x = 0.5, spans 0.425 to 0.575, color: light blue');
-            // Right port
-            const portRight = new THREE.Mesh(portGeometry, portMaterial);
-            portRight.position.x = 6.1; // Center at 6.1, spans 6.025 to 6.175
-            portRight.rotation.z = Math.PI / 2;
-            station.add(portRight);
-            console.log('Port Right: radius 0.65, x = 6.1, spans 6.025 to 6.175, color: light blue');
+            // Bottom port
+            const portBottom = new THREE.Mesh(portGeometry, portMaterial);
+            portBottom.position.y = -2.5; // Center at -2.5, spans -2.575 to -2.425
+            station.add(portBottom);
+            console.log('Port Bottom: radius 0.65, y = -2.5, spans -2.575 to -2.425, color: light blue');
+            // Top port
+            const portTop = new THREE.Mesh(portGeometry, portMaterial);
+            portTop.position.y = 2.5; // Center at 2.5, spans 2.425 to 2.575
+            station.add(portTop);
+            console.log('Port Top: radius 0.65, y = 2.5, spans 2.425 to 2.575, color: light blue');
 
             scene.add(station);
 
-            // Camera and initial orientation
-            camera.position.set(-5, 5, 10); // Left side closer, above and in front
-            station.rotation.y = Math.PI / 6; // Slight tilt for perspective
+            camera.position.z = 10;
 
             function animate() {
                 requestAnimationFrame(animate);
-                station.rotation.x += 0.005; // Slow roll along long axis (X)
+                station.rotation.y += 0.005;
+                station.rotation.x += 0.002;
                 renderer.render(scene, camera);
             }
             animate();
