@@ -3,45 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunar Station Game</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        header {
-            padding: 20px;
-            text-align: center;
-        }
-        #game-container {
-            width: 800px; /* Set your desired width */
-            height: 600px; /* Set your desired height */
-            border: 2px solid #333;
-            background-color: #000;
-        }
-        footer {
-            padding: 20px;
-            text-align: center;
-        }
-    </style>
+    <title>Lunar Station Game - Gunter Engineering</title>
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Adjust path if needed -->
 </head>
 <body>
     <header>
-        <h1>Lunar Station Game</h1>
-        <p>Manage your lunar space station in 3D!</p>
+        <nav>
+            <h1>Gunter Engineering</h1>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/about.html">About</a></li>
+                <li><a href="/projects.html">Projects</a></li>
+                <li><a href="/test-game.html">Game</a></li>
+            </ul>
+        </nav>
     </header>
-    <div id="game-container"></div>
+
+    <main>
+        <section id="game-section">
+            <h2>Lunar Station Game</h2>
+            <p>Manage your lunar space station in 3D!</p>
+            <div id="game-container"></div>
+        </section>
+    </main>
+
     <footer>
-        <p>More content or controls can go here.</p>
+        <p>&copy; 2025 Gunter Engineering. All rights reserved.</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // Target the game container instead of the body
         const container = document.getElementById('game-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -49,16 +40,13 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // Add the cube
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
-        // Position the camera
         camera.position.z = 5;
 
-        // Animation loop
         function animate() {
             requestAnimationFrame(animate);
             cube.rotation.x += 0.01;
@@ -67,7 +55,6 @@
         }
         animate();
 
-        // Handle window resize
         window.addEventListener('resize', () => {
             renderer.setSize(container.clientWidth, container.clientHeight);
             camera.aspect = container.clientWidth / container.clientHeight;
