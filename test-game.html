@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunar Station Game - Gunter Engineering</title>
+    <title>Payton Gunter - Lunar Station Game</title>
     <link rel="stylesheet" href="styles.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <h1>Gunter Engineering</h1>
-        <p>Exploring the Frontiers of Technology</p>
+        <h1>Payton Gunter</h1>
+        <p>Electronics Maker | Innovator | Space Advocate</p>
     </header>
-
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/about.html">About</a></li>
-            <li><a href="/projects.html">Projects</a></li>
-            <li><a href="/test-game.html">Game</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/current-projects.html">Current Projects</a></li>
+            <li><a href="/past-projects.html">Past Projects</a></li>
+            <li><a href="/off-topic.html">Off Topic</a></li>
+            <li><a href="/test-game.html">Game</a></li> <!-- Added for consistency -->
         </ul>
     </nav>
-
     <section id="test-game">
         <h2>Lunar Station Game</h2>
         <p>Manage your lunar space station in 3D!</p>
         <div id="game-container"></div>
     </section>
-
     <footer>
-        <p>© 2025 Gunter Engineering. All rights reserved.</p>
+        <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
@@ -60,6 +60,21 @@
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
         });
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                alert('Copied to clipboard: ' + text);
+            } catch (err) {
+                console.error('Copy failed: ', err);
+                alert('Copy failed—please select and copy manually.');
+            }
+            document.body.removeChild(tempInput);
+        }
     </script>
 </body>
 </html>
