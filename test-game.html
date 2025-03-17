@@ -5,21 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lunar Station Game</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            padding: 20px;
+            text-align: center;
+        }
+        #game-container {
+            width: 800px; /* Set your desired width */
+            height: 600px; /* Set your desired height */
+            border: 2px solid #333;
+            background-color: #000;
+        }
+        footer {
+            padding: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Lunar Station Game</h1>
+        <p>Manage your lunar space station in 3D!</p>
+    </header>
+    <div id="game-container"></div>
+    <footer>
+        <p>More content or controls can go here.</p>
+    </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // Set up the scene, camera, and renderer
+        // Target the game container instead of the body
+        const container = document.getElementById('game-container');
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
 
-        // Add a simple cube to test the 3D environment
+        // Add the cube
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
@@ -39,8 +69,8 @@
 
         // Handle window resize
         window.addEventListener('resize', () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
         });
     </script>
