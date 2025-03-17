@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payton Gunter - Lunar Station Game</title>
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3"> <!-- Increment to force reload -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -24,7 +24,7 @@
     <section id="test-game">
         <h2>Lunar Station Game</h2>
         <p>Manage your lunar space station in 3D!</p>
-        <div id="game-container" style="border: 2px solid red;"></div> <!-- Inline style for visibility -->
+        <div id="game-container" style="width: 800px; height: 600px; margin: 1.5rem auto; background: #000; border: 2px solid red;"></div>
     </section>
     <footer>
         <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
@@ -53,12 +53,6 @@
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
             console.log('Renderer canvas added to container');
-
-            // Test WebGL support
-            if (!renderer.context) {
-                console.error('WebGL not supported or failed to initialize');
-                alert('WebGL not supported - check browser settings');
-            }
 
             const geometry = new THREE.BoxGeometry(1, 1, 1);
             const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
