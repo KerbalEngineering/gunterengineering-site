@@ -54,45 +54,41 @@
             container.appendChild(renderer.domElement);
             console.log('Renderer canvas added to container');
 
-            // Station group to keep modules together
+            // Station group
             const station = new THREE.Group();
 
-            // Core module (cylinder)
-            const coreGeometry = new THREE.CylinderGeometry(0.5, 0.5, 4, 32);
-            const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
-            const core = new THREE.Mesh(coreGeometry, coreMaterial);
-            station.add(core);
+            // Module 1 (bottom)
+            const moduleGeometry = new THREE.CylinderGeometry(0.5, 0.5, 4, 32);
+            const moduleMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
+            const module1 = new THREE.Mesh(moduleGeometry, moduleMaterial);
+            module1.position.y = -2; // Center at y = -2 (half length below origin)
+            station.add(module1);
 
-            // Conical ends for core
-            const coneGeometry = new THREE.ConeGeometry(0.5, 1, 32);
+            // Module 2 (top)
+            const module2 = new THREE.Mesh(moduleGeometry, moduleMaterial);
+            module2.position.y = 2; // Center at y = 2 (half length above origin)
+            station.add(module2);
+
+            // Conical ends
+            const coneGeometry = new THREE.CylinderGeometry(0.2, 0.5, 0.3, 32); // Top 0.2, bottom 0.5, height 0.3
             const coneMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, wireframe: true });
-            const coneTop = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneTop.position.y = 2.5; // Top of core
-            station.add(coneTop);
             const coneBottom = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneBottom.position.y = -2.5; // Bottom of core
-            coneBottom.rotation.x = Math.PI; // Flip upside down
+            coneBottom.position.y = -4.15; // Bottom of module1 (-2 - 2 - 0.15)
             station.add(coneBottom);
+            const coneTop = new THREE.Mesh(coneGeometry, coneMaterial);
+            coneTop.position.y = 4.15; // Top of module2 (2 + 2 + 0.15)
+            coneTop.rotation.x = Math.PI; // Flip upside down
+            station.add(coneTop);
 
-            // Docking ports (small discs)
-            const portGeometry = new THREE.CircleGeometry(0.3, 32);
+            // Docking ports
+            const portGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.05, 32); // Radius 0.2, thickness 0.05
             const portMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaaa, wireframe: true });
-            const portTop = new THREE.Mesh(portGeometry, portMaterial);
-            portTop.position.y = 3; // Beyond cone top
-            portTop.rotation.x = -Math.PI / 2; // Face outward
-            station.add(portTop);
             const portBottom = new THREE.Mesh(portGeometry, portMaterial);
-            portBottom.position.y = -3; // Beyond cone bottom
-            portBottom.rotation.x = Math.PI / 2; // Face outward
+            portBottom.position.y = -4.325; // Beyond cone bottom (-4.15 - 0.15 - 0.025)
             station.add(portBottom);
-
-            // Side module (perpendicular)
-            const sideGeometry = new THREE.CylinderGeometry(0.4, 0.4, 3, 32);
-            const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
-            const sideModule = new THREE.Mesh(sideGeometry, sideMaterial);
-            sideModule.rotation.z = Math.PI / 2; // Horizontal
-            sideModule.position.x = 1.5; // Offset from core
-            station.add(sideModule);
+            const portTop = new THREE.Mesh(portGeometry, portMaterial);
+            portTop.position.y = 4.325; // Beyond cone top (4.15 + 0.15 + 0.025)
+            station.add(portTop);
 
             scene.add(station);
 
@@ -100,7 +96,7 @@
 
             function animate() {
                 requestAnimationFrame(animate);
-                station.rotation.y += 0.005; // Rotate whole station together
+                station.rotation.y += 0.005; // Rotate whole station
                 renderer.render(scene, camera);
             }
             animate();
