@@ -19,7 +19,6 @@
             <li><a href="/current-projects.html">Current Projects</a></li>
             <li><a href="/past-projects.html">Past Projects</a></li>
             <li><a href="/off-topic.html">Off Topic</a></li>
-            <li><a href="/test-game.html">Game</a></li> <!-- Added for consistency -->
         </ul>
     </nav>
     <section id="test-game">
@@ -33,33 +32,53 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        const container = document.getElementById('game-container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        container.appendChild(renderer.domElement);
-
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-
-        camera.position.z = 5;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            renderer.render(scene, camera);
+        // Check if Three.js loaded
+        if (typeof THREE === 'undefined') {
+            console.error('Three.js failed to load');
+            alert('Three.js failed to load - check console for details');
+        } else {
+            console.log('Three.js loaded successfully');
         }
-        animate();
 
-        window.addEventListener('resize', () => {
+        // Get the container
+        const container = document.getElementById('game-container');
+        if (!container) {
+            console.error('Game container not found');
+            alert('Game container not found - check HTML');
+        } else {
+            console.log('Game container found:', container);
+
+            // Set up Three.js
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-        });
+            container.appendChild(renderer.domElement);
+
+            // Add a cube
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            camera.position.z = 5;
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Handle resize
+            window.addEventListener('resize', () => {
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+            });
+        }
 
         function copyToClipboard(text) {
             const tempInput = document.createElement('textarea');
