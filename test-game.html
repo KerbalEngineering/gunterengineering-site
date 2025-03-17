@@ -24,7 +24,7 @@
     <section id="test-game">
         <h2>Lunar Station Game</h2>
         <p>Manage your lunar space station in 3D!</p>
-        <div id="game-container"></div>
+        <div id="game-container" style="border: 2px solid red;"></div> <!-- Inline style for visibility -->
     </section>
     <footer>
         <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
@@ -32,30 +32,34 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // Check if Three.js loaded
         if (typeof THREE === 'undefined') {
             console.error('Three.js failed to load');
-            alert('Three.js failed to load - check console for details');
+            alert('Three.js failed to load - check console');
         } else {
             console.log('Three.js loaded successfully');
         }
 
-        // Get the container
         const container = document.getElementById('game-container');
         if (!container) {
             console.error('Game container not found');
-            alert('Game container not found - check HTML');
+            alert('Game container not found');
         } else {
-            console.log('Game container found:', container);
+            console.log('Game container found');
+            console.log('Container dimensions:', container.clientWidth, container.clientHeight);
 
-            // Set up Three.js
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
             const renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
+            console.log('Renderer canvas added to container');
 
-            // Add a cube
+            // Test WebGL support
+            if (!renderer.context) {
+                console.error('WebGL not supported or failed to initialize');
+                alert('WebGL not supported - check browser settings');
+            }
+
             const geometry = new THREE.BoxGeometry(1, 1, 1);
             const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
             const cube = new THREE.Mesh(geometry, material);
@@ -63,7 +67,6 @@
 
             camera.position.z = 5;
 
-            // Animation loop
             function animate() {
                 requestAnimationFrame(animate);
                 cube.rotation.x += 0.01;
@@ -72,11 +75,13 @@
             }
             animate();
 
-            // Handle resize
             window.addEventListener('resize', () => {
-                renderer.setSize(container.clientWidth, container.clientHeight);
-                camera.aspect = container.clientWidth / container.clientHeight;
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
                 camera.updateProjectionMatrix();
+                console.log('Resize triggered - new dimensions:', width, height);
             });
         }
 
