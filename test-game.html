@@ -24,7 +24,7 @@
     <section id="test-game">
         <h2>Lunar Station Game</h2>
         <p>Manage your lunar space station in 3D!</p>
-        <div id="game-container"></div> <!-- No inline styles -->
+        <div id="game-container"></div>
     </section>
     <footer>
         <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
@@ -54,17 +54,25 @@
             container.appendChild(renderer.domElement);
             console.log('Renderer canvas added to container');
 
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            const cube = new THREE.Mesh(geometry, material);
-            scene.add(cube);
+            // Lunar station core (torus ring)
+            const ringGeometry = new THREE.TorusGeometry(3, 0.5, 16, 100);
+            const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaaa, wireframe: true });
+            const stationRing = new THREE.Mesh(ringGeometry, ringMaterial);
+            scene.add(stationRing);
 
-            camera.position.z = 5;
+            // Add a module (cylinder)
+            const moduleGeometry = new THREE.CylinderGeometry(0.3, 0.3, 2, 32);
+            const moduleMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
+            const module = new THREE.Mesh(moduleGeometry, moduleMaterial);
+            module.position.set(3.5, 0, 0); // Offset from ring center
+            scene.add(module);
+
+            camera.position.z = 10; // Adjusted for larger station
 
             function animate() {
                 requestAnimationFrame(animate);
-                cube.rotation.x += 0.01;
-                cube.rotation.y += 0.01;
+                stationRing.rotation.y += 0.005; // Slow rotation for effect
+                module.rotation.y += 0.005;
                 renderer.render(scene, camera);
             }
             animate();
