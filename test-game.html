@@ -57,19 +57,20 @@
             // Station group
             const station = new THREE.Group();
 
-            // Module 1 (bottom)
-            const moduleGeometry = new THREE.CylinderGeometry(1.3, 1.3, 4, 32); // Radius 1.3, length 4
+            // Module 1 (short, bottom)
+            const shortModuleGeometry = new THREE.CylinderGeometry(1.3, 1.3, 4, 32);
             const moduleMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
-            const module1 = new THREE.Mesh(moduleGeometry, moduleMaterial);
+            const module1 = new THREE.Mesh(shortModuleGeometry, moduleMaterial);
             module1.position.y = -2; // Center at y = -2
             station.add(module1);
 
-            // Module 2 (top)
-            const module2 = new THREE.Mesh(moduleGeometry, moduleMaterial);
-            module2.position.y = 2; // Center at y = 2
+            // Module 2 (habitat, top, 40% longer)
+            const habitatModuleGeometry = new THREE.CylinderGeometry(1.3, 1.3, 5.6, 32); // 4 * 1.4 = 5.6
+            const module2 = new THREE.Mesh(habitatModuleGeometry, moduleMaterial);
+            module2.position.y = 2.8; // Center at y = 2.8 (half of 5.6)
             station.add(module2);
 
-            // Conical ends (0.3 tall, taper to 0.45 radius)
+            // Conical ends (0.3 tall, 1.3 to 0.45 radius)
             const coneGeometry = new THREE.CylinderGeometry(0.45, 1.3, 0.3, 32);
             const coneMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, wireframe: true });
             // Bottom end
@@ -78,40 +79,73 @@
             station.add(coneBottom);
             // Top end
             const coneTop = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneTop.position.y = 4.15; // 2 + 2 + 0.15
+            coneTop.position.y = 5.95; // 2.8 + 2.8 + 0.15
             coneTop.rotation.x = Math.PI; // Flip
             station.add(coneTop);
             // Middle (between modules)
             const coneMiddleBottom = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneMiddleBottom.position.y = -0.15; // Just below y = 0
+            coneMiddleBottom.position.y = 0.15; // Between modules (adjusted for new length)
             station.add(coneMiddleBottom);
             const coneMiddleTop = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneMiddleTop.position.y = 0.15; // Just above y = 0
+            coneMiddleTop.position.y = 0.45; // Adjusted for gap
             coneMiddleTop.rotation.x = Math.PI; // Flip
             station.add(coneMiddleTop);
 
-            // Docking ports (radius 0.45, thickness 0.05)
-            const portGeometry = new THREE.CylinderGeometry(0.45, 0.45, 0.05, 32);
+            // Docking ports (radius 0.45, chamfer to 0.4, total height 0.05)
+            const portMiddleGeometry = new THREE.CylinderGeometry(0.45, 0.45, 0.03, 32); // Middle section
+            const portChamferGeometry = new THREE.CylinderGeometry(0.4, 0.45, 0.01, 32); // Chamfer ends
             const portMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaaa, wireframe: true });
+
             // Bottom port
-            const portBottom = new THREE.Mesh(portGeometry, portMaterial);
-            portBottom.position.y = -4.325; // -4.15 - 0.15 - 0.025
-            station.add(portBottom);
+            const portBottomMiddle = new THREE.Mesh(portMiddleGeometry, portMaterial);
+            portBottomMiddle.position.y = -4.325; // -4.15 - 0.15 - 0.025
+            station.add(portBottomMiddle);
+            const portBottomChamferTop = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portBottomChamferTop.position.y = -4.31; // Slightly above middle
+            station.add(portBottomChamferTop);
+            const portBottomChamferBottom = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portBottomChamferBottom.position.y = -4.34; // Slightly below middle
+            portBottomChamferBottom.rotation.x = Math.PI; // Flip
+            station.add(portBottomChamferBottom);
+
             // Top port
-            const portTop = new THREE.Mesh(portGeometry, portMaterial);
-            portTop.position.y = 4.325; // 4.15 + 0.15 + 0.025
-            station.add(portTop);
+            const portTopMiddle = new THREE.Mesh(portMiddleGeometry, portMaterial);
+            portTopMiddle.position.y = 6.115; // 5.95 + 0.15 + 0.025
+            station.add(portTopMiddle);
+            const portTopChamferTop = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portTopChamferTop.position.y = 6.13; // Slightly above
+            station.add(portTopChamferTop);
+            const portTopChamferBottom = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portTopChamferBottom.position.y = 6.1; // Slightly below
+            portTopChamferBottom.rotation.x = Math.PI; // Flip
+            station.add(portTopChamferBottom);
+
             // Middle ports (between modules)
-            const portMiddleBottom = new THREE.Mesh(portGeometry, portMaterial);
-            portMiddleBottom.position.y = -0.325; // -0.15 - 0.15 - 0.025
-            station.add(portMiddleBottom);
-            const portMiddleTop = new THREE.Mesh(portGeometry, portMaterial);
-            portMiddleTop.position.y = 0.325; // 0.15 + 0.15 + 0.025
-            station.add(portMiddleTop);
+            const portMiddleBottomMiddle = new THREE.Mesh(portMiddleGeometry, portMaterial);
+            portMiddleBottomMiddle.position.y = 0; // Adjusted for new spacing
+            station.add(portMiddleBottomMiddle);
+            const portMiddleBottomChamferTop = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portMiddleBottomChamferTop.position.y = 0.015;
+            station.add(portMiddleBottomChamferTop);
+            const portMiddleBottomChamferBottom = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portMiddleBottomChamferBottom.position.y = -0.015;
+            portMiddleBottomChamferBottom.rotation.x = Math.PI; // Flip
+            station.add(portMiddleBottomChamferBottom);
+
+            const portMiddleTopMiddle = new THREE.Mesh(portMiddleGeometry, portMaterial);
+            portMiddleTopMiddle.position.y = 0.6; // Adjusted for new spacing
+            station.add(portMiddleTopMiddle);
+            const portMiddleTopChamferTop = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portMiddleTopChamferTop.position.y = 0.615;
+            station.add(portMiddleTopChamferTop);
+            const portMiddleTopChamferBottom = new THREE.Mesh(portChamferGeometry, portMaterial);
+            portMiddleTopChamferBottom.position.y = 0.585;
+            portMiddleTopChamferBottom.rotation.x = Math.PI; // Flip
+            station.add(portMiddleTopChamferBottom);
 
             scene.add(station);
 
-            camera.position.z = 15; // Adjusted for larger station
+            camera.position.z = 15;
 
             function animate() {
                 requestAnimationFrame(animate);
