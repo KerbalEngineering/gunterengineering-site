@@ -3,72 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payton Gunter - Test Game: Lunar Station</title>
-    <link rel="stylesheet" href="styles.css?v=2">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Lunar Station Game</title>
     <style>
-        body { margin: 0; padding: 0; font-family: Roboto, sans-serif; }
-        header, footer { text-align: center; padding: 20px; background: #1a1a1a; color: #e0e0e0; }
-        nav ul { list-style: none; padding: 0; }
-        nav ul li { display: inline; margin: 0 10px; }
-        nav ul li a { color: #d7bdf2; text-decoration: none; }
-        section { padding: 20px; text-align: center; }
-        canvas { border: 2px solid #d4af37; }
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Payton Gunter</h1>
-        <p>Electronics Maker | Innovator | Space Advocate</p>
-    </header>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/contact.html">Contact</a></li>
-            <li><a href="/current-projects.html">Current Projects</a></li>
-            <li><a href="/past-projects.html">Past Projects</a></li>
-            <li><a href="/off-topic.html">Off Topic</a></li>
-        </ul>
-    </nav>
-    <section id="test-game">
-        <h2>Lunar Station (WIP)</h2>
-        <p>Manage a lunar space station—resources, power, modules, and thermals. Mini-games like docking incoming ships coming soon!</p>
-        <canvas id="stationCanvas" width="800" height="600"></canvas>
-    </section>
-    <footer>
-        <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
-    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        function copyToClipboard(text) {
-            const tempInput = document.createElement('textarea');
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            alert('Copied to clipboard: ' + text);
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
-    <script>
+        // Set up the scene, camera, and renderer
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, 800 / 600, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('stationCanvas') });
-        renderer.setSize(800, 600);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-        const geometry = new THREE.CylinderGeometry(2, 2, 0.5, 32); // Simple station module
-        const material = new THREE.MeshBasicMaterial({ color: 0x778da9 }); // Lunar gray
-        const station = new THREE.Mesh(geometry, material);
-        scene.add(station);
+        // Add a simple cube to test the 3D environment
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
 
+        // Position the camera
         camera.position.z = 5;
 
+        // Animation loop
         function animate() {
             requestAnimationFrame(animate);
-            station.rotation.y += 0.01; // Slow spin
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
             renderer.render(scene, camera);
         }
         animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
     </script>
 </body>
 </html>
