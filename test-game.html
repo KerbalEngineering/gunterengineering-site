@@ -54,25 +54,53 @@
             container.appendChild(renderer.domElement);
             console.log('Renderer canvas added to container');
 
-            // Lunar station core (torus ring)
-            const ringGeometry = new THREE.TorusGeometry(3, 0.5, 16, 100);
-            const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaaa, wireframe: true });
-            const stationRing = new THREE.Mesh(ringGeometry, ringMaterial);
-            scene.add(stationRing);
+            // Station group to keep modules together
+            const station = new THREE.Group();
 
-            // Add a module (cylinder)
-            const moduleGeometry = new THREE.CylinderGeometry(0.3, 0.3, 2, 32);
-            const moduleMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
-            const module = new THREE.Mesh(moduleGeometry, moduleMaterial);
-            module.position.set(3.5, 0, 0); // Offset from ring center
-            scene.add(module);
+            // Core module (cylinder)
+            const coreGeometry = new THREE.CylinderGeometry(0.5, 0.5, 4, 32);
+            const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            station.add(core);
 
-            camera.position.z = 10; // Adjusted for larger station
+            // Conical ends for core
+            const coneGeometry = new THREE.ConeGeometry(0.5, 1, 32);
+            const coneMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, wireframe: true });
+            const coneTop = new THREE.Mesh(coneGeometry, coneMaterial);
+            coneTop.position.y = 2.5; // Top of core
+            station.add(coneTop);
+            const coneBottom = new THREE.Mesh(coneGeometry, coneMaterial);
+            coneBottom.position.y = -2.5; // Bottom of core
+            coneBottom.rotation.x = Math.PI; // Flip upside down
+            station.add(coneBottom);
+
+            // Docking ports (small discs)
+            const portGeometry = new THREE.CircleGeometry(0.3, 32);
+            const portMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaaa, wireframe: true });
+            const portTop = new THREE.Mesh(portGeometry, portMaterial);
+            portTop.position.y = 3; // Beyond cone top
+            portTop.rotation.x = -Math.PI / 2; // Face outward
+            station.add(portTop);
+            const portBottom = new THREE.Mesh(portGeometry, portMaterial);
+            portBottom.position.y = -3; // Beyond cone bottom
+            portBottom.rotation.x = Math.PI / 2; // Face outward
+            station.add(portBottom);
+
+            // Side module (perpendicular)
+            const sideGeometry = new THREE.CylinderGeometry(0.4, 0.4, 3, 32);
+            const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true });
+            const sideModule = new THREE.Mesh(sideGeometry, sideMaterial);
+            sideModule.rotation.z = Math.PI / 2; // Horizontal
+            sideModule.position.x = 1.5; // Offset from core
+            station.add(sideModule);
+
+            scene.add(station);
+
+            camera.position.z = 10;
 
             function animate() {
                 requestAnimationFrame(animate);
-                stationRing.rotation.y += 0.005; // Slow rotation for effect
-                module.rotation.y += 0.005;
+                station.rotation.y += 0.005; // Rotate whole station together
                 renderer.render(scene, camera);
             }
             animate();
