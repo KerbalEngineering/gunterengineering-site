@@ -133,7 +133,7 @@
     </nav>
     <section id="off-topic">
         <h2>Off Topic</h2>
-        <p>Random fun stuff that doesn’t quite fit elsewhere—enjoy this quirky clock animation!</p>
+        <p>Random fun stuff—a clock where the second hand stays vertical while the face spins clockwise!</p>
         <div class="clock-container">
             <canvas id="clockCanvas" width="400" height="400"></canvas>
         </div>
@@ -172,11 +172,11 @@
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Pulse effect: rotate face every second
-            const pulseAngle = (seconds * 6) - 90; // 6 deg/sec, -90 to start at 12
+            // Rotate face clockwise (opposite previous direction)
+            const faceAngle = -(seconds * 6) * Math.PI / 180; // -6 deg/sec for clockwise
             ctx.save();
             ctx.translate(centerX, centerY);
-            ctx.rotate((pulseAngle * Math.PI) / 180);
+            ctx.rotate(faceAngle);
             ctx.translate(-centerX, -centerY);
 
             // Draw clock face
@@ -188,22 +188,19 @@
             ctx.lineWidth = 4;
             ctx.stroke();
 
-            // Draw hour markers
-            for (let i = 0; i < 12; i++) {
-                const angle = (i * 30 - 90) * Math.PI / 180; // 30 deg per hour
-                const x1 = centerX + (radius - 20) * Math.cos(angle);
-                const y1 = centerY + (radius - 20) * Math.sin(angle);
-                const x2 = centerX + (radius - 10) * Math.cos(angle);
-                const y2 = centerY + (radius - 10) * Math.sin(angle);
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.strokeStyle = '#e0e0e0';
-                ctx.lineWidth = 2;
-                ctx.stroke();
+            // Draw numbered markers
+            ctx.font = '16px Roboto';
+            ctx.fillStyle = '#e0e0e0';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            for (let i = 1; i <= 12; i++) {
+                const angle = ((i * 30) - 90) * Math.PI / 180; // 30 deg per hour
+                const x = centerX + (radius - 30) * Math.cos(angle);
+                const y = centerY + (radius - 30) * Math.sin(angle);
+                ctx.fillText(i.toString(), x, y);
             }
 
-            // Hour hand (adjusted for face rotation)
+            // Hour hand (adjusted for actual time)
             const hourAngle = ((hours + minutes / 60) * 30 - 90) * Math.PI / 180;
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
@@ -238,10 +235,8 @@
             ctx.fill();
         }
 
-        // Update every second with pulse
-        setInterval(() => {
-            drawClock();
-        }, 1000);
+        // Update every second
+        setInterval(drawClock, 1000);
 
         // Initial draw
         drawClock();
