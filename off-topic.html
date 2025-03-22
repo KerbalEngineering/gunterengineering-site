@@ -6,6 +6,116 @@
     <title>Payton Gunter - Off Topic</title>
     <link rel="stylesheet" href="styles.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 60px;
+            line-height: 1.6;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        header {
+            background: linear-gradient(45deg, #14213d, #1b263b);
+            color: #fff;
+            text-align: center;
+            padding: 3rem 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            letter-spacing: 1px;
+        }
+        header p {
+            margin: 0.5rem 0;
+            font-size: 1.3rem;
+            color: #778da9;
+        }
+        nav {
+            background: #2a2a2a;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #e8dafc;
+        }
+        #off-topic {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        #off-topic h2 {
+            text-align: center;
+            color: #d7bdf2;
+            font-size: 2rem;
+        }
+        #off-topic p {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+        .clock-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        #clockCanvas {
+            background: #333;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #14213d;
+            color: #778da9;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        footer a {
+            color: #e8dafc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer a:hover {
+            color: #f0e4ff;
+        }
+        .copyable {
+            color: #e8dafc;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+        .copyable:hover {
+            color: #f0e4ff;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            header p { font-size: 1rem; }
+            nav ul { flex-direction: column; gap: 1rem; }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -23,7 +133,10 @@
     </nav>
     <section id="off-topic">
         <h2>Off Topic</h2>
-        <p>Space rants, Tesla musings, and random ideas—coming soon! This is where I’ll let loose with thoughts that don’t fit the engineering mold.</p>
+        <p>Random fun stuff that doesn’t quite fit elsewhere—enjoy this quirky clock animation!</p>
+        <div class="clock-container">
+            <canvas id="clockCanvas" width="400" height="400"></canvas>
+        </div>
     </section>
     <footer>
         <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
@@ -43,6 +156,95 @@
             }
             document.body.removeChild(tempInput);
         }
+
+        const canvas = document.getElementById('clockCanvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 180;
+
+        function drawClock() {
+            const now = new Date();
+            const hours = now.getHours() % 12;
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Pulse effect: rotate face every second
+            const pulseAngle = (seconds * 6) - 90; // 6 deg/sec, -90 to start at 12
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate((pulseAngle * Math.PI) / 180);
+            ctx.translate(-centerX, -centerY);
+
+            // Draw clock face
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fill();
+            ctx.strokeStyle = '#778da9';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw hour markers
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30 - 90) * Math.PI / 180; // 30 deg per hour
+                const x1 = centerX + (radius - 20) * Math.cos(angle);
+                const y1 = centerY + (radius - 20) * Math.sin(angle);
+                const x2 = centerX + (radius - 10) * Math.cos(angle);
+                const y2 = centerY + (radius - 10) * Math.sin(angle);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Hour hand (adjusted for face rotation)
+            const hourAngle = ((hours + minutes / 60) * 30 - 90) * Math.PI / 180;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + (radius - 60) * Math.cos(hourAngle), centerY + (radius - 60) * Math.sin(hourAngle));
+            ctx.strokeStyle = '#d7bdf2';
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            // Minute hand
+            const minuteAngle = (minutes * 6 - 90) * Math.PI / 180;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + (radius - 40) * Math.cos(minuteAngle), centerY + (radius - 40) * Math.sin(minuteAngle));
+            ctx.strokeStyle = '#e8dafc';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            ctx.restore(); // Reset rotation for second hand
+
+            // Second hand (always vertical, pointing up)
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX, centerY - (radius - 20));
+            ctx.strokeStyle = '#f0e4ff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Center dot
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+            ctx.fillStyle = '#778da9';
+            ctx.fill();
+        }
+
+        // Update every second with pulse
+        setInterval(() => {
+            drawClock();
+        }, 1000);
+
+        // Initial draw
+        drawClock();
     </script>
 </body>
 </html>
