@@ -3,9 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payton Gunter - Lunar Station Game</title>
-    <link rel="stylesheet" href="styles.css?v=3">
+    <title>Payton Gunter - Test Game: Lunar Station</title>
+    <link rel="stylesheet" href="styles.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 60px;
+            line-height: 1.6;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        header {
+            background: linear-gradient(45deg, #14213d, #1b263b);
+            color: #fff;
+            text-align: center;
+            padding: 3rem 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            letter-spacing: 1px;
+        }
+        header p {
+            margin: 0.5rem 0;
+            font-size: 1.3rem;
+            color: #778da9;
+        }
+        nav {
+            background: #2a2a2a;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #e8dafc;
+        }
+        #test-game {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 8px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+        #test-game h2 {
+            color: #d7bdf2;
+            font-size: 2rem;
+        }
+        #stationCanvas {
+            border: 2px solid #d4af37;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #14213d;
+            color: #778da9;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        footer a {
+            color: #e8dafc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer a:hover {
+            color: #f0e4ff;
+        }
+        .copyable {
+            color: #e8dafc;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+        .copyable:hover {
+            color: #f0e4ff;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            header p { font-size: 1rem; }
+            nav ul { flex-direction: column; gap: 1rem; }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,113 +120,64 @@
         </ul>
     </nav>
     <section id="test-game">
-        <h2>Lunar Station Game</h2>
-        <p>Manage your lunar space station in 3D!</p>
-        <div id="game-container"></div>
+        <h2>Lunar Station (WIP)</h2>
+        <p>Manage a lunar space station—resources, power, modules, and thermals. Mini-games like docking incoming ships coming soon!</p>
+        <canvas id="stationCanvas" width="800" height="600"></canvas>
     </section>
     <footer>
         <p>Contact: <span class="copyable" onclick="copyToClipboard('kerbalengineer098@gmail.com')">kerbalengineer098@gmail.com</span> | <a href="https://github.com/KerbalEngineering">GitHub</a></p>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
-        if (typeof THREE === 'undefined') {
-            console.error('Three.js failed to load');
-            alert('Three.js failed to load - check console');
-        } else {
-            console.log('Three.js loaded successfully');
-        }
-
-        const container = document.getElementById('game-container');
-        if (!container) {
-            console.error('Game container not found');
-            alert('Game container not found');
-        } else {
-            console.log('Game container found');
-            console.log('Container dimensions:', container.clientWidth, container.clientHeight);
-
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
-            console.log('Renderer canvas added to container');
-
-            // Station group
-            const station = new THREE.Group();
-
-            // Single Module - Gray
-            const moduleGeometry = new THREE.CylinderGeometry(1.3, 1.3, 4, 32);
-            const moduleMaterial = new THREE.MeshBasicMaterial({ color: 0x666666 });
-            const module = new THREE.Mesh(moduleGeometry, moduleMaterial);
-            module.position.y = 0; // Ends at -2 and 2
-            station.add(module);
-            console.log('Module: radius 1.3, length 4, y = 0, ends at y = -2 and 2, color: gray');
-
-            // Conical ends - Light Green
-            const coneGeometry = new THREE.CylinderGeometry(0.65, 1.3, 0.5, 32); // Narrow top, wide bottom
-            const coneMaterial = new THREE.MeshBasicMaterial({ color: 0x90EE90 });
-            // Bottom cone
-            const coneBottom = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneBottom.position.y = -2.25; // Wide at -2, narrow at -2.5
-            coneBottom.rotation.x = Math.PI; // Flip to align wide end with module
-            station.add(coneBottom);
-            console.log('Cone Bottom: top 0.65, base 1.3, y = -2.25, narrow at -2.5, wide at -2, color: light green');
-            // Top cone
-            const coneTop = new THREE.Mesh(coneGeometry, coneMaterial);
-            coneTop.position.y = 2.25; // Wide at 2, narrow at 2.5
-            station.add(coneTop);
-            console.log('Cone Top: top 0.65, base 1.3, y = 2.25, narrow at 2.5, wide at 2, color: light green');
-
-            // Docking ports - Light Blue
-            const portGeometry = new THREE.CylinderGeometry(0.65, 0.65, 0.15, 32);
-            const portMaterial = new THREE.MeshBasicMaterial({ color: 0x87CEEB });
-            // Bottom port
-            const portBottom = new THREE.Mesh(portGeometry, portMaterial);
-            portBottom.position.y = -2.5; // Center at -2.5, spans -2.575 to -2.425
-            station.add(portBottom);
-            console.log('Port Bottom: radius 0.65, y = -2.5, spans -2.575 to -2.425, color: light blue');
-            // Top port
-            const portTop = new THREE.Mesh(portGeometry, portMaterial);
-            portTop.position.y = 2.5; // Center at 2.5, spans 2.425 to 2.575
-            station.add(portTop);
-            console.log('Port Top: radius 0.65, y = 2.5, spans 2.425 to 2.575, color: light blue');
-
-            scene.add(station);
-
-            camera.position.z = 10;
-
-            function animate() {
-                requestAnimationFrame(animate);
-                station.rotation.y += 0.005;
-                station.rotation.x += 0.002;
-                renderer.render(scene, camera);
-            }
-            animate();
-
-            window.addEventListener('resize', () => {
-                const width = container.clientWidth;
-                const height = container.clientHeight;
-                renderer.setSize(width, height);
-                camera.aspect = width / height;
-                camera.updateProjectionMatrix();
-                console.log('Resize triggered - new dimensions:', width, height);
-            });
-        }
-
         function copyToClipboard(text) {
             const tempInput = document.createElement('textarea');
             tempInput.value = text;
             document.body.appendChild(tempInput);
             tempInput.select();
-            try {
-                document.execCommand('copy');
-                alert('Copied to clipboard: ' + text);
-            } catch (err) {
-                console.error('Copy failed: ', err);
-                alert('Copy failed—please select and copy manually.');
-            }
+            document.execCommand('copy');
             document.body.removeChild(tempInput);
+            alert('Copied to clipboard: ' + text);
+        }
+
+        if (typeof THREE === 'undefined') {
+            console.error('Three.js failed to load. Check CDN or network.');
+        } else {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, 800 / 600, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('stationCanvas') });
+            renderer.setSize(800, 600);
+
+            const loader = new THREE.GLTFLoader();
+            let stationModule;
+            loader.load('/models/station-module.glb', (gltf) => {
+                stationModule = gltf.scene;
+                scene.add(stationModule);
+                stationModule.position.set(0, 0, 0);
+                stationModule.scale.set(1, 1, 1);
+                console.log('Model loaded successfully');
+            }, undefined, (error) => {
+                console.error('Error loading GLTF:', error);
+            });
+
+            const light = new THREE.AmbientLight(0xffffff, 1);
+            scene.add(light);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+
+            camera.position.z = 5;
+            camera.position.y = 2;
+            camera.lookAt(0, 0, 0);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                if (stationModule) {
+                    stationModule.rotation.y += 0.01;
+                }
+                renderer.render(scene, camera);
+            }
+            animate();
         }
     </script>
 </body>
